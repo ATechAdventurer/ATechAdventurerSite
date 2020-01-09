@@ -1,9 +1,9 @@
 ---
 title: Hello World
-date: "2015-05-01T22:12:03.284Z"
-description: "Hello World"
-author: "Cameron Steele"
-headerImage: "../../content/assets/Eevee.gif"
+date: '2015-05-01T22:12:03.284Z'
+description: Hello World
+author: Cameron Steele
+image: null
 ---
 
 This is my first post on my new fake blog! How exciting!
