@@ -1,6 +1,4 @@
 ---
-title: Test
-date: '2020-01-09T23:26:11.917Z'
-description: ''
+title: test
 image: /content/images/Eevee.gif
 ---
