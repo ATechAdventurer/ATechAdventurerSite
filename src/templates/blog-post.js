@@ -1,110 +1,48 @@
 import React from "react"
-import { Link, graphql } from "gatsby"
-
+import { Link, graphql, } from "gatsby"
+import Image from "gatsby-image"
 import Bio from "../components/bio"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import { rhythm, scale } from "../utils/typography"
 import { remarkForm } from "gatsby-tinacms-remark"
+import get from "lodash.get";
 
-class BlogPostTemplate extends React.Component {
-  render() {
-    const post = this.props.data.markdownRemark
-    const siteTitle = this.props.data.site.siteMetadata.title
-    const { previous, next } = this.props.pageContext
-
-    return (
-      <Layout location={this.props.location} title={siteTitle}>
-        <SEO
-          title={post.frontmatter.title}
-          description={post.frontmatter.description || post.excerpt}
-        />
-        <article>
-          <header>
-            <h1
-              style={{
-                marginTop: rhythm(1),
-                marginBottom: 0,
-              }}
-            >
-              {post.frontmatter.title}
-            </h1>
-            <p
-              style={{
-                ...scale(-1 / 5),
-                display: `block`,
-                marginBottom: rhythm(1),
-              }}
-            >
-              {post.frontmatter.date}
-            </p>
+function BlogPostTemplate({
+  data, // this prop will be injected by the GraphQL query below.
+}) {
+  const { markdownRemark } = data // data.markdownRemark holds your post data
+  const { frontmatter, html, timeToRead } = markdownRemark
+  const {image} = frontmatter
+  return (
+    <Layout>
+      <article className="blog-post px-3 py-5 p-md-5">
+        <div className="container">
+          <header className="blog-post-header">
+            <h2 className="title mb-2">{frontmatter.title}</h2>
+            <div className="meta mb-3"><span className="date">{frontmatter.date}</span><span className="time">{timeToRead} min{timeToRead > 1 ? "s" : null} read</span><span className="comment"><a href="#">4 comments</a></span></div>
           </header>
-          <section dangerouslySetInnerHTML={{ __html: post.html }} />
-          <hr
-            style={{
-              marginBottom: rhythm(1),
-            }}
-          />
-          <footer>
-            <Bio />
-          </footer>
-        </article>
 
-        <nav>
-          <ul
-            style={{
-              display: `flex`,
-              flexWrap: `wrap`,
-              justifyContent: `space-between`,
-              listStyle: `none`,
-              padding: 0,
-            }}
-          >
-            <li>
-              {previous && (
-                <Link to={previous.fields.slug} rel="prev">
-                  ← {previous.frontmatter.title}
-                </Link>
-              )}
-            </li>
-            <li>
-              {next && (
-                <Link to={next.fields.slug} rel="next">
-                  {next.frontmatter.title} →
-                </Link>
-              )}
-            </li>
-          </ul>
-        </nav>
-      </Layout>
-    )
-  }
+          <div className="blog-post-body">
+            <Image src={image}/>
+            <div
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+
+          </div>
+          <nav className="blog-nav nav nav-justified my-5">
+            <a className="nav-link-prev nav-item nav-link rounded-left" href="index.html">Previous<i className="arrow-prev fas fa-long-arrow-alt-left"></i></a>
+            <a className="nav-link-next nav-item nav-link rounded-right" href="blog-list.html">Next<i className="arrow-next fas fa-long-arrow-alt-right"></i></a>
+          </nav>
+        </div>
+      </article>
+    </Layout>
+  )
 }
 
-/**
- * This object defines the form for editing blog post.
- */
 const BlogPostForm = {
-  /**
-   * The list of fields tell us what the form looks like.
-   */
   fields: [
-    /**
-     * This is a field definition. There are many types of
-     * components available, including:
-     *
-     * * text
-     * * textarea
-     * * toggle
-     * * date
-     * * markdown
-     * * color
-     * * group
-     * * group-list
-     * * blocks
-     */
     {
-      //
       name: "frontmatter.title",
       component: "text",
       label: "Title",
@@ -117,6 +55,17 @@ const BlogPostForm = {
       label: "Textarea",
     },
     { name: "rawMarkdownBody", component: "markdown", label: "Body" },
+    { name: "frontmatter.image", component: "image", label: "Image", previewSrc: filename => `/content/images/${filename}`, previewSrc: (formValues, { input }) => {
+      const path = input.name.replace("rawFrontmatter", "frontmatter")
+      const gastbyImageNode = get(formValues, path)
+      if (!gastbyImageNode) return ""
+      //specific to gatsby-image
+      return gastbyImageNode.childImageSharp.fluid.src
+    },
+
+    uploadDir: () => {
+      return "/content/images/"
+    }, }
   ],
 }
 
@@ -143,6 +92,8 @@ export const pageQuery = graphql`
         title
         date(formatString: "MMMM DD, YYYY")
         description
+        author
+        image
       }
     }
   }
